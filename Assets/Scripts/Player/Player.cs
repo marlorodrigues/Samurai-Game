@@ -7,6 +7,7 @@ public class Player : MonoBehaviour
 
     public float speed;
     public float jumpForce;
+    public float attackRadius;
     private bool isJumping;
     private bool isAttacking;
     private int attackCombo = 0;
@@ -14,6 +15,8 @@ public class Player : MonoBehaviour
 
     public Rigidbody2D rigidBody;
     public Animator animator;
+    public Transform firePoint;
+    public LayerMask enemyLayer;
 
     void Start()
     {
@@ -66,14 +69,23 @@ public class Player : MonoBehaviour
         if(Input.GetButtonDown("Fire1")){
             if (!isAttacking)
             {
+                bool damage = false;
+                Collider2D hit = Physics2D.OverlapCircle(firePoint.position, attackRadius, enemyLayer);
+
                 if(attackCombo < 2){
                     AttackLight();
                     attackCombo++; 
+                    damage = true;
                 }
                 else{
                     AttackHeavy();
                     attackCombo = 0;  
+                    damage = false;
                 }
+
+                if(hit != null)
+                    hit.GetComponent<FlightEnemy>().onHit(damage);
+                
             }
         }
     }
