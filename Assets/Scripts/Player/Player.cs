@@ -1,22 +1,38 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-
+    public float health;
     public float speed;
     public float jumpForce;
     public float attackRadius;
+    public float recoveryTime;
+
+    private float recoveryCount;
     private bool isJumping;
     private bool isAttacking;
     private int attackCombo = 0;
     private int auxFlag = 0;
 
+    bool gameOver = false;
+
     public Rigidbody2D rigidBody;
     public Animator animator;
     public Transform firePoint;
     public LayerMask enemyLayer;
+    public GameController gameController;
+
+    public Image healthBar;
+    public Image staminaBar;
+    public Image manaBar;
+    public Image iconPlayer;
+
+    [Header("Audio Settings")]
+    public AudioSource attackAudio;
+    public AudioClip sfx;
 
     void Start()
     {
@@ -26,11 +42,18 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if(gameOver)
+            return;
+
         Jump();
         Attack();
     }
 
     private void FixedUpdate() {
+
+        if(gameOver)
+            return;
+
         float direction = Input.GetAxis("Horizontal");
 
         rigidBody.velocity = new Vector2(speed * direction, rigidBody.velocity.y);
@@ -72,6 +95,8 @@ public class Player : MonoBehaviour
                 bool damage = false;
                 Collider2D hit = Physics2D.OverlapCircle(firePoint.position, attackRadius, enemyLayer);
 
+                attackAudio.PlayOneShot(sfx);
+                
                 if(attackCombo < 2){
                     AttackLight();
                     attackCombo++; 
@@ -117,5 +142,36 @@ public class Player : MonoBehaviour
     IEnumerator onAttacking(){
         yield return new WaitForSeconds(0.6f);
         isAttacking = false;
+    }
+
+    public void onHit(float damage){
+
+        if(gameOver)
+            return;
+
+        recoveryCount += Time.deltaTime;
+
+        if(recoveryCount >= recoveryTime){
+            health -= damage;
+
+            iconPlayer.fillAmount -= (float)((damage/100f) + 0.075);
+            healthBar.fillAmount -= damage/100f;
+            staminaBar.fillAmount -= 0.078f;
+            manaBar.fillAmount -= 0.0654f;
+
+            if(health < 1){
+                animator.SetTrigger("death");
+                GameOver();
+            }
+            else
+                animator.SetTrigger("takeHit");
+            
+            recoveryCount = 0f;
+        }
+    }
+
+    private void GameOver(){
+        gameOver = true;
+        gameController.showGameOver();
     }
 }
