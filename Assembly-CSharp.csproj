@@ -39,8 +39,10 @@
      <Compile Include="Assets\Scripts\Controllers\Spawn_Enemy.cs" />
      <Compile Include="Assets\Scripts\Player\Player.cs" />
      <Compile Include="Assets\Scripts\Flight Enemy\FlightEnemy.cs" />
-     <Compile Include="Assets\Scripts\GameController.cs" />
      <Compile Include="Assets\Scripts\Enemy\Enemy.cs" />
+     <Compile Include="Assets\Scripts\GameController.cs" />
+     <None Include="Assets\Sprites\Assets - Radom Samurai\craftpix-net-481532-free-medieval-tileset-pixel-art-pack\readme.txt" />
+     <None Include="Assets\Sprites\Assets - Radom Samurai\parallax_mountain_pack\license.txt" />
     <Reference Include="UnityEngine">
         <HintPath>/Users/marlorodrigues/Workcopy/Unity/2020.1.4f1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>

@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     public Transform firePoint;
     public LayerMask enemyLayer;
     public GameController gameController;
+    public Camera mainCamera;
 
     public Image healthBar;
     public Image staminaBar;

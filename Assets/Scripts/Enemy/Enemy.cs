@@ -8,12 +8,17 @@ public class Enemy : MonoBehaviour
     public float Speed;
     public float damage;
     public float stopDistance;
-    private float initialSpeed;
     public bool isRight;
     public bool isFirst = true;
     public bool isAttacking;
-    private int attackCombo = 0;
     public bool isDeath = false;
+    
+    private float initialSpeed;
+    private int attackCombo = 0;
+    private float distance;
+    private float playerPosition;
+    private bool auxAnimationAttack = false;
+    
 
     public Rigidbody2D rigidBody;
     public Animator animator;
@@ -31,57 +36,56 @@ public class Enemy : MonoBehaviour
 
     void Update()
     {
-        if (isDeath || isAttacking)
+        if (isDeath)
             return;
 
-        float distance = Vector2.Distance(transform.position, player.position);
-        float playerPosition = transform.position.x - player.position.x;
+        if(!isAttacking){
+            distance = Vector2.Distance(transform.position, player.position);
+            playerPosition = transform.position.x - player.position.x;
 
-        if (playerPosition > 0)
-            isRight = false;
-        else
-            isRight = true;
+            if (playerPosition > 0)
+                isRight = false;
+            else
+                isRight = true;
+        }
 
-        if (distance < stopDistance)
+        if (distance <= stopDistance)
         {
             Speed = 0f;
             isAttacking = true;
+            player.GetComponent<Player>().onHit(damage);
 
-            if (isFirst)
-            {
-                isFirst = false;
+            if(!auxAnimationAttack){
+                if (isFirst)
+                {
+                    isFirst = false;
+                    animator.SetInteger("transition", 3);
+                }
+                else if (attackCombo > 2)
+                {
+                    attackCombo = 0;
+                    animator.SetInteger("transition", 3);
+                }
+                else
+                {
+                    attackCombo++;
+                    animator.SetInteger("transition", 2);
+                }
 
-                StartCoroutine(sleep());             //wait for the time of animation
-
-                // rigidBody.velocity = new Vector2(0, 0);
-                // transform.eulerAngles = new Vector2(0, 180);
-
-                animator.SetInteger("transition", 3);
+                auxAnimationAttack = true;
+                StartCoroutine(onAttacking());             //wait for the time of animation
             }
-            else if (attackCombo > 2)
-            {
-                animator.SetInteger("transition", 3);
-                attackCombo = 0;
-            }
-            else
-            {
-                attackCombo++;
-                animator.SetInteger("transition", 2);
-            }
-
-            StartCoroutine(onAttacking());             //wait for the time of animation
         }
-        else
+        else{
             Speed = initialSpeed;
+        }
     }
 
     private void FixedUpdate()
     {
-        if (isDeath || isAttacking)
-        {
-            Speed = 0f;
+        if (isDeath)
             return;
-        }
+        
 
         changeAnimation(1);
 
@@ -129,10 +133,6 @@ public class Enemy : MonoBehaviour
     {
         yield return new WaitForSeconds(1f);
         isAttacking = false;
-    }
-
-    IEnumerator sleep()
-    {
-        yield return new WaitForSeconds(1f);
+        auxAnimationAttack = false;
     }
 }
